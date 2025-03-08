@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AppSidebar } from "~/components/app-sidebar";
 import {
   Breadcrumb,
@@ -63,11 +64,7 @@ export default async function Page() {
   };
 
   // Fetch list data
-  const fetchListData = async ({
-    listId,
-  }: {
-    listId: string;
-  }): Promise<ApiResponse | undefined> => {
+  const fetchListData = async ({ listId }: { listId: string }) => {
     try {
       const response = await fetch(
         `https://api.trello.com/1/lists/${listId}/cards?key=${process.env.TRELLO_KEY}&token=${process.env.TRELLO_TOKEN}`,
@@ -81,8 +78,8 @@ export default async function Page() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = (await response.json()) as BoardItem[]; // Assuming Trello API returns an array
-      return { boardData: data };
+      const data = (await response.json()) as unknown;
+      return data;
     } catch (error) {
       console.error("Error fetching Trello list:", error);
       return undefined;
@@ -90,7 +87,7 @@ export default async function Page() {
   };
 
   // Fetch and filter data
-  await (async () => {
+  const lists = await (async () => {
     const boardData = await fetchBoardData();
     if (!boardData) {
       console.log("No board data received.");
@@ -101,8 +98,21 @@ export default async function Page() {
       "Die Cutter",
       "Box Machine",
     ]);
-    console.log(filteredListIds);
+    return filteredListIds;
   })();
+
+  const fetchCards = async (num: number) => {
+    if (!lists?.[num]) {
+      console.log("No lists to fetch cards from.");
+      return [];
+    }
+    const cardsPromises = [fetchListData({ listId: lists[num].id })];
+    const cards = await Promise.all(cardsPromises);
+    return cards[0] as Array<{ id: string; name: string }>;
+  };
+  const guillotineCards = await fetchCards(0);
+  const dieCutCards = await fetchCards(1);
+  const boxMachineCards = await fetchCards(2);
 
   return (
     <SidebarProvider>
@@ -126,14 +136,25 @@ export default async function Page() {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <h1 className="ml-5 text-2xl font-semibold">At a glance...</h1>
-          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div className="aspect-video rounded-xl bg-muted" />
-            <div className="aspect-video rounded-xl bg-muted" />
-            <div className="aspect-video rounded-xl bg-muted" />
-          </div>
-          <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
+          <h1 className="ml-5 text-2xl font-semibold">
+            These numbers are from the{" "}
+            <Link
+              href="https://trello.com/b/ygNgDkLo/production"
+              className="text-secondary-foreground underline hover:text-opacity-10"
+            >
+              Production
+            </Link>{" "}
+            Trello board
+          </h1>
+          <h2>Guillotine - ({guillotineCards.length})</h2>
+          <h2>Die Cutter - ({dieCutCards.length})</h2>
+          <h2>Box Machine - ({boxMachineCards.length})</h2>
+          {/* <div className="flex flex-col gap-2">
+            {guillotineCards?.map((card) => <h3 key={card.id}>{card.name}</h3>)}
+          </div> */}
+          <div className="aspect-video rounded-xl bg-muted" />
         </div>
+        <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
       </SidebarInset>
     </SidebarProvider>
   );

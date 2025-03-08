@@ -39,27 +39,27 @@ const data = {
       items: [
         {
           title: "Rotary Die Cutter",
-          url: "#",
+          url: "/machines/rotary-die-cutter",
         },
         {
           title: "Langston",
-          url: "#",
+          url: "/machines/langston",
         },
         {
           title: "AOPack",
-          url: "#",
+          url: "/machines/box-machine",
         },
         {
           title: "Guillotine",
-          url: "#",
+          url: "/machines/guillotine",
         },
         {
           title: "Hand Fed Die Cutter",
-          url: "#",
+          url: "/machines/hand-fed-die-cutter",
         },
         {
           title: "Gluing",
-          url: "#",
+          url: "/machines/gluing",
         },
       ],
     },
@@ -70,11 +70,11 @@ const data = {
       items: [
         {
           title: "Jumbo",
-          url: "#",
+          url: "/machines/jumbo",
         },
         {
           title: "Gluing",
-          url: "#",
+          url: "/machines/annex-gluing",
         },
         {
           title: "Other Things?",
